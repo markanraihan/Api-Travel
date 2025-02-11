@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Grup {
+  grupid       String         @id @default(uuid()) @db.VarChar(36)
+  nama_grup    String         @db.VarChar(36)
+  created_by   String         @db.VarChar(36)
+  created_at   DateTime       @default(now())
+  finish_at    DateTime?
+  open_user    Int
+  status       String         @db.VarChar(50)
+  userId       String         @db.VarChar(36) // Foreign key untuk relasi ke Users
+  roomid       String?        @unique
+  room         Room?          @relation(fields: [roomid], references: [id])
+  participants Peserta_Grup[]
+  progress     Progress[]
+  user         Users          @relation(fields: [userId], references: [id]) // Relasi ke Users
+  UsersGoogle  UsersGoogle[]
+
+  // Hapus batasan unik
+  @@index([userId]) // Gunakan index untuk mempercepat pencarian
+}
+
+model Peserta_Grup {
+  peserta_grupid String   @id @default(uuid()) @db.VarChar(36)
+  grupid         String   @db.VarChar(36)
+  userId         String   @db.VarChar(36)
+  roomid         String?  @unique
+  joinedAt       DateTime @default(now())
+  online         String   @db.VarChar(10)
+
+  grup          Grup[]
+  user          Users        @relation(fields: [userId], references: [id])
+  room          Room?        @relation(fields: [roomid], references: [id]) // Tambahkan ini untuk relasi ke Room
+  UsersGoogle   UsersGoogle? @relation(fields: [usersGoogleId], references: [id])
+  usersGoogleId String?      @db.VarChar(36)
+
+  @@unique([grupid, userId])
+}
+
+model Progress {
+  progressid       String  @id @default(uuid()) @db.VarChar(36)
+  grupid           String  @db.VarChar(36)
+  jenis_perjalanan String  @db.VarChar(20)
+  live             Int
+  status           Boolean
+  is_finished      Boolean @default(false)
+  waktu_mulai      DateTime? // Tambahkan kolom waktu_mulai
+
+  grup            Grup                  @relation(fields: [grupid], references: [grupid])
+  progressDetails Progress_perjalanan[] 
+  progressDoa     Progress_Doa[] // 🔹 Tambahkan relasi balik ke Progress_Doa
+}
+
+model Progress_perjalanan {
+  progress_perjalananid String    @id @default(uuid()) @db.VarChar(36)
+  progressid            String    @db.VarChar(36)
+  userId                String    @db.VarChar(36)
+  perjalananid          String    @db.VarChar(36)
+  waktu_mulai           DateTime  // Ambil nilai dari Progress.waktu_mulai
+  time_selesai          DateTime?
+
+  progress      Progress     @relation(fields: [progressid], references: [progressid])
+  user          Users        @relation(fields: [userId], references: [id])
+  perjalanan    Perjalanan   @relation(fields: [perjalananid], references: [perjalananid])
+  UsersGoogle   UsersGoogle? @relation(fields: [usersGoogleId], references: [id])
+  usersGoogleId String?      @db.VarChar(36)
+}
+
+model Perjalanan {
+  perjalananid    String @id @default(uuid()) @db.VarChar(36)
+  nama_perjalanan String @db.VarChar(100)
+  sort_order      Int    @default(0) // Kolom untuk mengatur urutan manual
+
+  progress_perjalanan Progress_perjalanan[]
+  doa          Doa[]  // Relasi one-to-many ke tabel Doa
+}
+
+model Profiles {
+  profileid String   @id @default(uuid()) @db.VarChar(36)
+  name      String   @db.VarChar(255)
+  whatsapp  String
+  photo     String?  @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId      String        @unique
+  user        Users         @relation(fields: [userId], references: [id])
+  UsersGoogle UsersGoogle[]
+}
+
+model Room {
+  id             String @id @default(uuid()) @db.VarChar(36)
+  nama_room      String @db.VarChar(100)
+  token_speaker  String @db.VarChar(1000)
+  token_listener String @db.VarChar(1000)
+
+  grup         Grup[]
+  Peserta_Grup Peserta_Grup[]
+}
+
+model Users {
+  id           String           @id @default(uuid()) @db.VarChar(36)
+  name         String           @db.VarChar(255)
+  password     String           @db.VarChar(255)
+  email        String           @unique @db.VarChar(255)
+  whatsapp     String           @unique @db.VarChar(255)
+  role         enum_Users_role? @default(user)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  lastLogin    DateTime?
+  status_login Boolean          @default(false)
+  currentToken String?          @db.Text // Menyimpan token aktif
+
+  profile         Profiles?
+  groups          Peserta_Grup[]
+  progressDetails Progress_perjalanan[] 
+  grup            Grup[]
+}
+
+model UsersGoogle {
+  id           String           @id @default(uuid()) @db.VarChar(36)
+  name         String           @unique @db.VarChar(255)
+  email        String           @unique @db.VarChar(255)
+  whatsapp     String           @unique @db.VarChar(255)
+  role         enum_Users_role? @default(user)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  lastLogin    DateTime?
+  status_login Boolean          @default(false)
+
+  profile           Profiles?             @relation(fields: [profilesProfileid], references: [profileid])
+  groups            Peserta_Grup[]
+  progressDetails   Progress_perjalanan[] 
+  Grup              Grup?                 @relation(fields: [grupGrupid], references: [grupid])
+  grupGrupid        String?               @db.VarChar(36)
+  profilesProfileid String?               @db.VarChar(36)
+}
+
+model Doa {
+  doaid        String  @id @default(uuid()) @db.VarChar(36)
+  judul_doa    String
+  perjalananid String
+  link_audio   String? @db.VarChar(255) 
+  perjalanan   Perjalanan @relation(fields: [perjalananid], references: [perjalananid])
+  ayat         Ayat[] // Hapus onDelete di sini
+  progressDoa  Progress_Doa[] 
+}
+
+model Ayat {
+  ayatid      String @id @default(uuid()) 
+  teks_ayat   String
+  terjemahan  String?
+  urutan_ayat Int
+  doaid       String
+  doa         Doa    @relation(fields: [doaid], references: [doaid], onDelete: Cascade) 
+}
+
+model Progress_Doa {
+  progress_doaid String   @id @default(uuid()) @db.VarChar(36)
+  progressid     String   @db.VarChar(36)
+  doaid          String   @db.VarChar(36)
+  doa_mulai      DateTime @default(now())  
+  doa_selesai    DateTime?                 
+  durasi_doa     String?                      
+  cek_doa        Boolean @default(false)   
+
+  progress       Progress  @relation(fields: [progressid], references: [progressid])
+  doa           Doa       @relation(fields: [doaid], references: [doaid])
+
+  @@unique([progressid, doaid])
+}
+
+model Video {
+  videoid      String   @id @default(uuid())
+  judul_vid    String
+  deskripsi    String
+  link_vid     String
+  thumbnail    String
+  created_at   DateTime @default(now())
+}
+
+enum enum_Users_role {
+  user
+  ustadz
+  admin
+}

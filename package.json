@@ -1,0 +1,39 @@
+{
+  "name": "dev",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.js",
+    "watch": "node --watch index.js",
+    "start:dev": "nodemon index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@100mslive/server-sdk": "^0.3.0",
+    "@prisma/client": "^5.20.0",
+    "axios": "^1.7.7",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "express-validator": "^7.2.0",
+    "google-auth-library": "^9.14.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "mysql": "^2.18.1",
+    "nodemon": "^3.1.7",
+    "path": "^0.12.7",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.0.3",
+    "uuidv4": "^6.2.13"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "prettier": "3.3.3",
+    "prisma": "^5.20.0",
+    "supertest": "^7.0.0"
+  }
+}
