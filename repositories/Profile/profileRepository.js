@@ -1,3 +1,4 @@
+// profileRepository.js
 const prisma = require("../../utils/Prisma");
 
 const findAllUsers = async () => {

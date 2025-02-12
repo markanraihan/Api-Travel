@@ -11,7 +11,16 @@ const getAllDoa = async () => {
 
 const getDoaById = async (doaId) => {
   return await prisma.doa.findUnique({
-    where: { doaid: doaId }, // Jangan ubah ke number, biarkan string
+    where: { doaid: doaId }, 
+    include: {
+      ayat: true,
+    },
+  });
+};
+
+const getDoaByPerjalananId = async (perjalananId) => {
+  return await prisma.doa.findMany({
+    where: { perjalananid: perjalananId },
     include: {
       ayat: true,
     },
@@ -70,6 +79,7 @@ const deleteDoa = async (doaId) => {
 module.exports = {
   getAllDoa,
   getDoaById,
+  getDoaByPerjalananId,
   createDoa,
   updateDoa,
   deleteDoa,

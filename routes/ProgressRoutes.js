@@ -8,4 +8,4 @@ router.post("/", ProgressControllers.createProgress);
 router.put("/", ProgressControllers.exitProgress);
 router.get("/", ProgressControllers.getLiveProgress);
 
-module.exports = router
+module.exports = router 

@@ -65,6 +65,7 @@ model Progress_perjalanan {
   perjalananid          String    @db.VarChar(36)
   waktu_mulai           DateTime  // Ambil nilai dari Progress.waktu_mulai
   time_selesai          DateTime?
+  durasi_progress       String?      // Tambahkan kolom durasi_progress
 
   progress      Progress     @relation(fields: [progressid], references: [progressid])
   user          Users        @relation(fields: [userId], references: [id])

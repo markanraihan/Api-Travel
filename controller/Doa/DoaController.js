@@ -30,6 +30,20 @@ const getDoaById = async (req, res) => {
   }
 };
 
+const getDoaByPerjalananId = async (req, res) => {
+  try {
+    const perjalananId = req.params.perjalananid;
+    if (!perjalananId) {
+      return res.status(400).json({ message: "perjalananId is required" });
+    }
+
+    const doaList = await DoaService.getDoaByPerjalananId(perjalananId);
+    res.status(200).json(doaList);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 const createDoa = async (req, res) => {
   try {
     const { judul_doa, perjalananid, link_audio, ayat } = req.body;
@@ -39,7 +53,7 @@ const createDoa = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
+ 
 const updateDoa = async (req, res) => {
   try {
     const doaId = req.params.id;
@@ -64,6 +78,7 @@ const deleteDoa = async (req, res) => {
 module.exports = {
   getAllDoa,
   getDoaById,
+  getDoaByPerjalananId,
   createDoa,
   updateDoa,
   deleteDoa,

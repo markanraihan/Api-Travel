@@ -8,7 +8,7 @@ const createProgress = async (grupid, perjalananid) => {
     return { status: 404, data: { msg: "Grup tidak ditemukan" } };
   }
 
-  // Validasi perjalanan
+  // Validasi perjalanan 
   const perjalanan = await ProgressRepository.findPerjalananById(perjalananid);
   if (!perjalanan) {
     return { status: 404, data: { msg: "Perjalanan tidak ditemukan" } };
